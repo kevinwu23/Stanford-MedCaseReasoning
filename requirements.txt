@@ -1,0 +1,23 @@
+# Core data processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# XML and HTML processing
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+
+# Progress bars and parallel processing
+tqdm>=4.65.0
+
+# NCBI/PubMed interaction
+biopython>=1.81
+
+# Data storage and compression
+pyarrow>=14.0.1  # For parquet file support
+
+# File handling and compression
+requests>=2.31.0  # For downloading files
+ftplib3>=0.2.1   # For FTP operations
+
+# Optional but recommended for improved performance
+multiprocess>=0.70.15  # For better multiprocessing support
