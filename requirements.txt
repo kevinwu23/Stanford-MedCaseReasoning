@@ -17,7 +17,7 @@ pyarrow>=14.0.1  # For parquet file support
 
 # File handling and compression
 requests>=2.31.0  # For downloading files
-ftplib3>=0.2.1   # For FTP operations
+#ftplib3>=0.2.1   # For FTP operations
 
 # Optional but recommended for improved performance
 multiprocess>=0.70.15  # For better multiprocessing support
