@@ -29,7 +29,6 @@ Prompts are ~2.5× longer than typical short-vignette datasets (e.g. MedQA, MMLU
 
 ## 🔧 Repository structure
 <pre>
-```
 .
 ├── data/
 │   ├── medcase_reasoning_train.jsonl
@@ -45,12 +44,7 @@ Prompts are ~2.5× longer than typical short-vignette datasets (e.g. MedQA, MMLU
 └── finetune/
     ├── train_sft.py         # supervised fine-tuning recipe
     └── configs/
-```
 </pre>
-
-> **Note**  
-> The five numbered scripts reproduce the pipeline described in the paper (Fig 1 A) and yield the released dataset.  
-> If you only need the ready-made data, skip to the HuggingFace section below.
 
 ---
 
