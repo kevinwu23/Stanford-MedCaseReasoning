@@ -1,3 +1,6 @@
+![Under Construction](https://img.shields.io/badge/status-under--construction-orange?logo=semantic-release&logoColor=white)
+* There may be certain files missing as we are building out this repo in the next week. Plesae be patient with us!
+  
 # MedCaseReasoning
 
 **An open-access benchmark and pipeline for evaluating and improving clinical diagnostic reasoning in large language models.**
