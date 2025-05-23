@@ -28,21 +28,25 @@ Prompts are ~2.5× longer than typical short-vignette datasets (e.g. MedQA, MMLU
 ---
 
 ## 🔧 Repository structure
+<pre>
+```
 .
 ├── data/
 │   ├── medcase_reasoning_train.jsonl
 │   └── medcase_reasoning_test.jsonl
-├── prompts.py            # all prompt templates used in the paper
-├── download_pmc.py       # ① bulk PMC OA downloader
-├── get_case_report_pmcids.py   # ② fetch case-report PMCIDs
-├── process_pmc.py        # ③ parallel extractor for candidate XML
-├── extract_metadata.py   # ④ structured metadata
-├── extract_text.py       # ⑤ clean XML → text
-├── stitch_reasoning.py   # bullets → fluent reasoning trace
-├── evaluate.py           # diagnostic accuracy & reasoning-recall runner
+├── prompts.py               # all prompt templates used in the paper
+├── download_pmc.py          # ① bulk PMC OA downloader
+├── get_case_report_pmcids.py# ② fetch case-report PMCIDs
+├── process_pmc.py           # ③ parallel extractor for candidate XML
+├── extract_metadata.py      # ④ structured metadata
+├── extract_text.py          # ⑤ clean XML → text
+├── stitch_reasoning.py      # bullets → fluent reasoning trace
+├── evaluate.py              # diagnostic accuracy & reasoning-recall runner
 └── finetune/
-├── train_sft.py      # supervised fine-tuning recipe
-└── configs/
+    ├── train_sft.py         # supervised fine-tuning recipe
+    └── configs/
+```
+</pre>
 
 > **Note**  
 > The five numbered scripts reproduce the pipeline described in the paper (Fig 1 A) and yield the released dataset.  
