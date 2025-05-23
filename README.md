@@ -1,108 +1,133 @@
-# PMC Case Report Processing Pipeline
+# MedCaseReasoning
 
-This repository contains a complete pipeline for downloading and processing case reports from PubMed Central (PMC). The pipeline includes tools for identifying case reports, downloading bulk XML data, extracting relevant articles, and processing their metadata and text content.
+**An open-access benchmark and pipeline for evaluating and improving clinical diagnostic reasoning in large language models.**
 
-## Pipeline Overview
+[![HuggingFace](https://img.shields.io/badge/Dataset-HuggingFace-blue)](https://huggingface.co/datasets/zou-lab/MedCaseReasoning)
+[![Paper](https://img.shields.io/badge/Paper-NeurIPS_2025-orange)](https://arxiv.org/abs/2505.11733) <!-- replace with final DOI/URL -->
+[![License](https://img.shields.io/badge/License-CC-BY_4.0-green)](#license)
 
-1. Download bulk PMC XML files (`download_pmc.py`)
-2. Fetch case report PMCIDs (`get_case_report_pmcids.py`)
-3. Extract case report XML files (`process_pmc.py`)
-4. Extract metadata from case reports (`extract_metadata.py`)
-5. Extract and process full text (`extract_text.py`)
+---
 
-## Detailed Usage
+## ✨ What’s inside?
 
-### 1. Download PMC Bulk Files
-First, download the bulk XML files from PMC's FTP server:
+| Split | # Cases | Purpose |
+|-------|--------:|---------|
+| **train** | 13,092 | Supervised fine-tuning & analysis |
+| **test**  |   897 | Model-agnostic evaluation (diagnostic accuracy & reasoning recall) |
+
+*Total*: **14,489 clinician-authored diagnostic cases** spanning 30+ medical specialties.
+
+Each example contains
+
+* `case_prompt` – the patient presentation **before** a differential is made  
+* `diagnostic_reasoning` – numbered reasoning statements (with quotes from the article)  
+* `final_diagnosis` – single gold-standard diagnosis label  
+
+Prompts are ~2.5× longer than typical short-vignette datasets (e.g. MedQA, MMLU), mimicking real ward notes.
+
+---
+
+## 🔧 Repository structure
+.
+├── data/
+│   ├── medcase_reasoning_train.jsonl
+│   └── medcase_reasoning_test.jsonl
+├── prompts.py            # all prompt templates used in the paper
+├── download_pmc.py       # ① bulk PMC OA downloader
+├── get_case_report_pmcids.py   # ② fetch case-report PMCIDs
+├── process_pmc.py        # ③ parallel extractor for candidate XML
+├── extract_metadata.py   # ④ structured metadata
+├── extract_text.py       # ⑤ clean XML → text
+├── stitch_reasoning.py   # bullets → fluent reasoning trace
+├── evaluate.py           # diagnostic accuracy & reasoning-recall runner
+└── finetune/
+├── train_sft.py      # supervised fine-tuning recipe
+└── configs/
+
+> **Note**  
+> The five numbered scripts reproduce the pipeline described in the paper (Fig 1 A) and yield the released dataset.  
+> If you only need the ready-made data, skip to the HuggingFace section below.
+
+---
+
+## 🚀 Quick start
+
+### 1. Install
 
 ```bash
-python download_pmc.py
+git clone https://github.com/kevinwu23/MedCaseReasoning.git
+cd MedCaseReasoning
+conda env create -f environment.yml
+conda activate medcase
 ```
 
-This script:
-- Downloads PMC Open Access bulk XML files from 2024 onwards
-- Handles both commercial and non-commercial licenses
-- Creates directory structure:
-  ```
-  pmc_bulk_downloads/
-  ├── oa_comm/
-  └── oa_noncomm/
-  ```
-- Automatically skips already downloaded files
-- Downloads both tar.gz files and their corresponding filelists
+### 2. Load the dataset
+```python
+from datasets import load_dataset
+ds = load_dataset("zou-lab/MedCaseReasoning", "all")  # or "train" / "test"
+```
+### 3. Evaluate an LLM
+```bash
+python evaluate.py \
+    --model deepseek-ai/deepseek-llm-7b-chat \
+    --shots 10 \
+    --save results.json
+```
+evaluate.py reports:
+	•	Diagnostic accuracy (1/5/10-shot, LLM-as-judge)
+	•	Reasoning recall – percentage of ground-truth reasoning points covered by the model trace
 
-### 2. Get Case Report PMCIDs
-Next, identify all case reports in PMC:
+### 4. Fine-tune
+```bash
+python finetune/train_sft.py \
+    --base_model "Qwen/Qwen2-7B-Instruct" \
+    --train_file data/medcase_reasoning_train.jsonl \
+    --eval_file  data/medcase_reasoning_test.jsonl \
+    --config finetune/configs/sft_default.yaml
+```
 
+### 🧑‍🔬 Reproducing the dataset
+
+Run the pipeline end-to-end for full provenance:
+#### 1.	Download bulk PMC XML
+```bash
+python download_pmc.py --year-from 2024
+```
+
+#### 2.	Identify case-report PMCIDs
 ```bash
 python get_case_report_pmcids.py \
     --start-date 2015/01/01 \
-    --email your.email@example.com \
-    --output case_report_pmcids.csv
+    --email you@domain.com
 ```
 
-Parameters:
-- `--start-date`: Start date in YYYY/MM/DD format
-- `--email`: Your email (required by NCBI)
-- `--output`: Output CSV file (default: case_report_pmcids.csv)
-
-### 3. Process PMC Files
-Extract case report XML files from the bulk downloads:
-
+#### 3.	Extract matching XML
 ```bash
 python process_pmc.py
 ```
 
-This script:
-- Reads PMCIDs from `case_report_pmcids.csv`
-- Processes bulk tar.gz files in parallel
-- Extracts only matching case report XML files
-- Creates `extracted_case_reports/` directory with XML files
-- Uses multiprocessing for faster extraction
-
-### 4. Extract Metadata
-Extract structured metadata from the XML files:
-
+#### 4. Build JSONL dataset
 ```bash
 python extract_metadata.py
-```
-
-Extracts and saves metadata including:
-- Accession ID (PMCID)
-- Publication date
-- Article title
-- Journal name
-- Article link
-- Saves results to `metadata.csv`
-
-### 5. Extract Full Text
-Process and extract the full text content:
-
-```bash
 python extract_text.py
+python stitch_reasoning.py
 ```
 
-Features:
-- Extracts main text content from XML
-- Cleans and formats text:
-  - Removes citation markers
-  - Fixes figure references
-  - Preserves paragraph structure
-- Saves results to `case_reports_text.parquet`
+### 📄 Citation
 
-## Directory Structure
-.
-├── pmc_bulk_downloads/ # Raw downloaded files
-│ ├── oa_comm/
-│ └── oa_noncomm/
-├── case_report_pmcids.csv # List of case report PMCIDs
-├── extracted_case_reports/ # Extracted XML files
-├── metadata.csv # Extracted metadata
-└── case_reports_text.parquet # Processed full text
+```bibtex
+@inproceedings{wu2025medcase,
+  title     = {MedCaseReasoning: Evaluating and Learning Diagnostic Reasoning from Clinical Case Reports},
+  author    = {Wu, Kevin and Wu, Eric and Thapa, Rahul and others},
+  booktitle = {NeurIPS},
+  year      = {2025},
+  url       = {https://github.com/kevinwu23/MedCaseReasoning}
+}
+```
 
-## Requirements
-pandas
-beautifulsoup4
-lxml
-tqdm
-biopython
+🔒 License
+	•	Code — MIT
+	•	Dataset — CC-BY 4.0 (derived from the PMC Open Access Subset)
+	•	Model checkpoints — see individual model cards
+
+For questions, open an issue or email stanfordmedeval@gmail.com.
