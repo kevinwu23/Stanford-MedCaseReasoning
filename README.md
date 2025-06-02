@@ -33,9 +33,6 @@ Prompts are ~2.5× longer than typical short-vignette datasets (e.g. MedQA, MMLU
 ## 🔧 Repository structure
 <pre>
 .
-├── data/
-│   ├── medcase_reasoning_train.jsonl
-│   └── medcase_reasoning_test.jsonl
 ├── prompts.py               # all prompt templates used in the paper
 ├── download_pmc.py          # ① bulk PMC OA downloader
 ├── get_case_report_pmcids.py# ② fetch case-report PMCIDs
