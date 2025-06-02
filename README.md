@@ -6,7 +6,7 @@
 **An open-access benchmark and pipeline for evaluating and improving clinical diagnostic reasoning in large language models.**
 
 [![HuggingFace](https://img.shields.io/badge/Dataset-HuggingFace-blue)](https://huggingface.co/datasets/zou-lab/MedCaseReasoning)
-[![Paper](https://img.shields.io/badge/Paper-NeurIPS_2025-orange)](https://arxiv.org/abs/2505.11733) <!-- replace with final DOI/URL -->
+[![Paper](https://arxiv.org/abs/2505.11733)
 [![License](https://img.shields.io/badge/License-CC--BY_4.0-green)](#license)
 
 ---
